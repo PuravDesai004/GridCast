@@ -114,6 +114,8 @@ The seal includes relevant prediction code/config/dependency hashes, source/feat
 
 MAE is summed absolute error/count. WAPE is100×summed absolute error/summed absolute actual, with zero denominator explicitly unavailable. Peak threshold is the final training-label90th percentile **118,411.4 MWh**, never recalculated from test labels. No confidence interval treats adjacent horizon rows as independent. Test missing actuals, quality-failed origins and clipped candidate targets are allzero. Raw candidate comparison excludes fallback predictions.
 
+Final fit count reconciliation: 639 scheduled origins × 24 = 15,336 possible rows. Eight feature-quality exclusions remove 192 rows. Of the 25 missing/unavailable label rows reported before feature-quality filtering, four belong to the already excluded March 11 origin. The remaining 18 missing March 10 labels and three September 30 boundary labels remove 21 further rows: 15,336 − 192 − 21 = **15,123 fitted rows**. Do not subtract overlapping exclusions twice.
+
 ## Registry, releases, transactions, and recovery
 
 MLflow tracks fits, parameters, provenance, cutoffs, metrics, split/leakage artifacts, versions and measured durations in project-resolved SQLite/local artifacts. The actual fixed candidate is registered as `GridCast_PJM_Candidate` version 1. The seasonal baseline has no invented registry version. Trusted local model serialization uses cloudpickle; only checksum-verified artifacts are loaded. Failed setup runs remain visible rather than erased.

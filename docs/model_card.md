@@ -27,6 +27,8 @@ Test:92/92 paired origins, no missing actuals/quality failures/clipped targets, 
 
 ## Fit, source, and identities
 
+Final fitted row count reconciles as 639 × 24 possible rows, minus 192 rows from eight quality-excluded origins, minus 21 further missing/boundary labels = 15,123. The reported 25 missing/unavailable labels are counted before quality filtering; four overlap the excluded March 11 origin. This overlap is not subtracted twice.
+
 Initial fitting spans January 2024–June 2025; expanding chronological validation is July/August/September 2025. Fixed final candidate uses leaves 15, L2= 1, max_iter 150, seed 42, early_stopping=False, two CPU threads. Final eligible label count15,123 and latest fitted target2025-09-30 21:00 UTC; no January 2026 guard label is fitted. Twenty-five purged/unavailable labels comprise22 real missing values and3 boundary labels. The three partially purged final origins are March 10/11 2024 and September 30 2025.
 
 Source:17,906 valid padded observations (17,522 core,336 warm-up,48 guard),17,928 delivered versions,22 rejected/null gaps,0 observed multi-version real identities. Collection was in October 2026; historical revised data and simulated three-hour availability do not prove historically available publication vintages or prospective accuracy. Scoring features use windows `(anchor−N hours,anchor]`, population stddev and UTC timestamp joins. Local calendar includes UTC offset and DST fold. Missing observations remain missing.
