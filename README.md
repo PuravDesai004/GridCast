@@ -101,17 +101,21 @@ Same logical identity verifies the output hash and inserts zero extra forecasts.
 - Snapshot failure after DB success: retry `export-demo`, then `validate-demo`; committed forecasts remain immutable.
 - Port 8501 busy: stop the existing preview or use another explicit local port.
 
-Manual Snowflake work is completely **unexecuted**. Start with [the user-run guide](docs/snowflake_steps.md); local completion does not require it. No repo was pushed, service deployed, external resource created, or background schedule installed.
+Manual Snowflake work is completely **unexecuted**. Start with [the user-run guide](docs/snowflake_steps.md); local completion does not require it. No service has been deployed or background schedule installed.
 
-## Hosted CI, when you choose to publish
+## Project viva skill
 
-The prepared `.github/workflows/offline-checks.yml` runs on Linux with no keys or historical downloads. After reviewing the secret scan/evidence, create your own repository and execute:
+The supplied [Project Viva Coach skill](.agents/skills/project-viva-coach/SKILL.md) is included with all six reference files and its inventory script. The eight files preserve the supplied archive's contents. Codex loads repository skills from `.agents/skills`; invoke `$project-viva-coach` to prepare an architecture walkthrough, demo, or technical viva from this project. Adding the skill does not run its script or generate a coaching guide.
+
+## GitHub and hosted CI
+
+Repository: [PuravDesai004/GridCast](https://github.com/PuravDesai004/GridCast).
+
+The `.github/workflows/offline-checks.yml` workflow runs on Linux after pushes, with no keys or historical downloads. Inspect its actual run and evidence in [GitHub Actions](https://github.com/PuravDesai004/GridCast/actions/workflows/offline-checks.yml), or with the optional GitHub CLI:
 
 ```powershell
-git remote add origin <YOUR_GITHUB_REPOSITORY_URL>
-git push -u origin HEAD
 gh run list --workflow offline-checks.yml
 gh run view <ACTUAL_RUN_ID> --log-failed
 ```
 
-These commands were not executed. Record the actual commit/run URL and downloaded evidence before claiming hosted CI passed.
+The original completion report describes the verified local release before publication. Hosted CI remains unverified until an actual run succeeds; local test results alone do not establish Linux compatibility.
