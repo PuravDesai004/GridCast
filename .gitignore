@@ -4,6 +4,17 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 *.egg-info/
+# Local verification and editor scratch; keep public demo/evidence assets visible.
+/.pytest_tmp_*/
+/tmp/
+/.coverage
+/.coverage.*
+/htmlcov/
+/build/
+/dist/
+*.py[cod]
+.DS_Store
+Thumbs.db
 .env
 .env.*
 !.env.example

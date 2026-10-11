@@ -29,7 +29,7 @@ $env:MPLCONFIGDIR = (Resolve-Path state\matplotlib).Path
 .\.venv\Scripts\python.exe -m pip check
 ```
 
-Skip `venv` creation and installation when continuing the supplied working environment. The lock pins the actual Windows resolution. `requirements/local.lock.txt` adds a Windows marker for pywin32 for Linux CI; **Linux installation and hosted CI are pending**, not verified. Python 3.12/3.13 support is allowed by project metadata but this exact lock was resolved on 3.14 only. CPU fits use two threads, sequential folds, at most four configurations, 150 iterations, seed 42, and no early stopping.
+Skip `venv` creation and installation when continuing the supplied working environment. The lock pins the actual Windows resolution. `requirements/local.lock.txt` adds a Windows marker for pywin32 for Linux CI. The [first hosted Ubuntu run](https://github.com/PuravDesai004/GridCast/actions/runs/38145773653) completed dependency installation but failed one containment test; see [cleanup verification](docs/cleanup_report.md) for the checked scopes. Python 3.12/3.13 support is allowed by project metadata but this exact lock was resolved on 3.14 only. CPU fits use two threads, sequential folds, at most four configurations, 150 iterations, seed 42, and no early stopping.
 
 ## Launch the packaged real dashboard
 
@@ -91,7 +91,7 @@ Same logical identity verifies the output hash and inserts zero extra forecasts.
 
 ## Inspect artifacts and troubleshoot
 
-`python -m gridcast --help` lists every stage and argument. The main database is `state/gridcast.duckdb`; registry metadata is `state/mlflow.sqlite`, artifacts `state/mlflow_artifacts`, model `state/candidate.joblib`, serving pointer `releases/current.json`. Runtime assets are ignored by Git; compact sanitized receipts and the current snapshot are public-ready.
+`python -m gridcast --help` lists every stage and argument. The main database is `data/db/gridcast.duckdb`; registry metadata is `state/mlflow.sqlite`, artifacts `state/mlflow_artifacts`, model `state/candidate.joblib`, serving pointer `releases/current.json`. Runtime assets are ignored by Git; compact sanitized receipts and the current snapshot are public-ready.
 
 - Missing EIA key: set it privately in the process that performs ingestion; offline dashboard and fixtures still work.
 - Temporary-directory permission error: create and point TEMP/TMP to `state/tmp` as above. If the desktop sandbox denies loopback sockets, launch the same command in your own PowerShell; do not change firewall settings.
@@ -118,4 +118,10 @@ gh run list --workflow offline-checks.yml
 gh run view <ACTUAL_RUN_ID> --log-failed
 ```
 
-The original completion report describes the verified local release before publication. Hosted CI remains unverified until an actual run succeeds; local test results alone do not establish Linux compatibility.
+The original completion report predates publication. The [first hosted Ubuntu run](https://github.com/PuravDesai004/GridCast/actions/runs/38145773653) failed a Windows-drive containment test and skipped its private real-seal test. The cleanup preserves that published prediction code; separate local fixes remain uncommitted. See [the cleanup report](docs/cleanup_report.md) for scoped checks and inspect the actual post-push run before claiming hosted success.
+
+## Repository hygiene
+
+The [cleanup report](docs/cleanup_report.md) records removed scratch workspaces, recovery backups, verification, and retained evidence. The reviewed demo generation, genuine screenshots, focused tests, source ingestion path, dependency locks, SQL, manual Snowflake scripts, and historical release receipts remain available. Local data, MLflow artifacts, and serving bundles remain outside Git. Verification writes temporary state under `state/cleanup-review`; cache and build ignore rules leave the public demo and evidence visible.
+
+The cleanup commit preserves the existing published pipeline. Separate uncommitted bug fixes and architecture/resume work remain in the local checkout; checks run against that checkout are identified separately from checks of the committed repository.

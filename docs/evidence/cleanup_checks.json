@@ -1,0 +1,74 @@
+{
+  "checked_at_utc": "2026-10-11T15:19:02.268584+00:00",
+  "source_commit": "8b2137243801bada4aad48989080daa9cc5e4cdf",
+  "cleanup_changes_only": true,
+  "working_checkout": {
+    "scope": "Includes pre-existing uncommitted fixes; not attributed to cleanup commit",
+    "pytest": {
+      "tests": 135,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 135,
+      "seconds": 61.357,
+      "receipt_sha256": "1206e76b96b66a121db750cc653071bb21de1c58c614d1d3d99510eb846e9a9e"
+    },
+    "ruff": "PASS",
+    "pip_check": "PASS",
+    "cli_help": "PASS",
+    "demo": "PASS"
+  },
+  "isolated_cleanup_tree": {
+    "scope": "Published source plus cleanup; excludes pre-existing uncommitted changes",
+    "pytest": {
+      "tests": 44,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1,
+      "passed": 43,
+      "seconds": 26.639,
+      "receipt_sha256": "c39c0552cf85bbbd5e57b5f599c48e3023931f4c736441e468d40a60c3ce0281"
+    },
+    "skip_reason": "test_changed_seal_rejects_evaluation requires a completed sealed real build",
+    "ruff": "PASS",
+    "cli_help": "PASS",
+    "demo": "PASS"
+  },
+  "credential_free_dashboard": {
+    "status": "PASS",
+    "views": 3,
+    "filtered_paired_targets_per_model": 1104,
+    "http_and_model_loading_blocked": true,
+    "external_network_blocked": true
+  },
+  "integrity": {
+    "protected_runtime_files": 14,
+    "protected_hashes_unchanged": true,
+    "preexisting_changes_preserved_except_authorized_readme_additions": true,
+    "missing_documentation_links": [],
+    "required_public_assets_ignored": [],
+    "readme_database_path_verified": "data/db/gridcast.duckdb"
+  },
+  "cleanup": {
+    "removed_files": 2050,
+    "removed_bytes": 551034773,
+    "removed_targets": 29,
+    "backup_archive_bytes": 85323607,
+    "completed_at": "2026-10-11T15:12:52.8350835Z"
+  },
+  "secret_scan": {
+    "status": "PASS",
+    "scope": "Complete cleaned public tree before staging; final index rechecked before commit",
+    "files": 135,
+    "private_credential_matches": 0,
+    "backup_archives_in_tree": false
+  },
+  "historical_ci": {
+    "run_id": 38145773653,
+    "conclusion": "failure",
+    "scope": "Original published source; uncommitted portability fix excluded from cleanup"
+  },
+  "tracking": "No accidentally tracked runtime files required untracking",
+  "historical_retraining_or_holdout_reevaluation": false,
+  "snowflake_connection": false
+}
