@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="2" tests="40" time="22.140" timestamp="2026-10-11T18:37:05.610079+05:30" hostname="Purav"><testcase classname="tests.test_contracts" name="test_config_rejects_invalid_before_work[parameters0]" time="0.001" /><testcase classname="tests.test_contracts" name="test_config_rejects_invalid_before_work[parameters1]" time="0.000" /><testcase classname="tests.test_contracts" name="test_config_rejects_invalid_before_work[parameters2]" time="0.000" /><testcase classname="tests.test_contracts" name="test_config_rejects_invalid_before_work[parameters3]" time="0.000" /><testcase classname="tests.test_contracts" name="test_config_rejects_invalid_before_work[parameters4]" time="0.000" /><testcase classname="tests.test_contracts" name="test_config_rejects_invalid_before_work[parameters5]" time="0.000" /><testcase classname="tests.test_contracts" name="test_config_rejects_invalid_before_work[parameters6]" time="0.000" /><testcase classname="tests.test_contracts" name="test_sanitizer_removes_nested_echo_and_secret_strings" time="0.000" /><testcase classname="tests.test_contracts" name="test_pagination_inclusive_bounds_and_sort" time="0.001" /><testcase classname="tests.test_contracts" name="test_contract_failures_discard_window[responses0]" time="0.001"><failure message="IndexError: pop from empty list">responses = [&lt;gridcast.scenarios.FakeResponse object at 0x000002456D3C7380&gt;]
+
+    @pytest.mark.parametrize(
+        "responses",
+        [
+            [FakeResponse(payload([api_row()], total=2))],
+            [
+                FakeResponse(payload([api_row()], total=2)),
+                FakeResponse(payload([api_row("2025-09-01T01")], total=1)),
+            ],
+            [FakeResponse(payload([{**api_row(), "respondent": "CISO"}]))],
+            [FakeResponse(payload([api_row("2025-09-02T00")]))],
+            [FakeResponse(payload([api_row()], total=2)), FakeResponse(payload([api_row()], total=2))],
+            [
+                FakeResponse(payload([api_row()], total=2)),
+                FakeResponse(payload([api_row(value="999")], total=2)),
+            ],
+        ],
+    )
+    def test_contract_failures_discard_window(responses):
+        with pytest.raises(SourceError):
+&gt;           EIAClient("private_test_secret", FakeSession(responses), lambda _: None).window(
+                "2025-09-01T00:00:00Z", "2025-09-01T02:00:00Z", page_size=1
+            )
+
+tests\test_contracts.py:99: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+src\gridcast\source.py:92: in window
+    payload = self.request("data/", {**params, "offset": offset})
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src\gridcast\source.py:34: in request
+    response = self.session.get(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;gridcast.scenarios.FakeSession object at 0x000002452742B250&gt;
+url = 'https://api.eia.gov/v2/electricity/rto/region-data/data/'
+params = {'frequency': 'hourly', 'data[0]': 'value', 'facets[respondent][]': 'PJM', 'facets[type][]': 'D', ...}
+timeout = (10, 45)
+
+    def get(self, url, params, timeout):
+        self.calls.append(
+            {"params": {k: v for k, v in params.items() if k != "api_key"}, "timeout": timeout}
+        )
+&gt;       response = self.responses.pop(0)
+                   ^^^^^^^^^^^^^^^^^^^^^
+E       IndexError: pop from empty list
+
+src\gridcast\scenarios.py:39: IndexError</failure></testcase><testcase classname="tests.test_contracts" name="test_contract_failures_discard_window[responses1]" time="0.001" /><testcase classname="tests.test_contracts" name="test_contract_failures_discard_window[responses2]" time="0.001" /><testcase classname="tests.test_contracts" name="test_contract_failures_discard_window[responses3]" time="0.001" /><testcase classname="tests.test_contracts" name="test_contract_failures_discard_window[responses4]" time="0.001" /><testcase classname="tests.test_contracts" name="test_contract_failures_discard_window[responses5]" time="0.001" /><testcase classname="tests.test_contracts" name="test_timeout_retry_bounded_and_auth_prompt" time="0.001" /><testcase classname="tests.test_contracts" name="test_typed_demand_no_silent_filling[NaN-False-invalid]" time="0.001" /><testcase classname="tests.test_contracts" name="test_typed_demand_no_silent_filling[inf-False-invalid]" time="0.001" /><testcase classname="tests.test_contracts" name="test_typed_demand_no_silent_filling[-1-False-invalid]" time="0.001" /><testcase classname="tests.test_contracts" name="test_typed_demand_no_silent_filling[None-False-invalid]" time="0.001" /><testcase classname="tests.test_contracts" name="test_typed_demand_no_silent_filling[0-True-zero]" time="0.001" /><testcase classname="tests.test_contracts" name="test_typed_demand_no_silent_filling[999999-True-extreme_positive]" time="0.001" /><testcase classname="tests.test_contracts" name="test_unit_mismatch_rejected" time="0.000" /><testcase classname="tests.test_contracts" name="test_receipt_delivery_reversion_and_conflict" time="0.644" /><testcase classname="tests.test_contracts" name="test_gappy_lags_use_clock_timestamps_and_population_std" time="0.174" /><testcase classname="tests.test_contracts" name="test_dst_unique_utc_and_fold[2025-03-09]" time="0.171" /><testcase classname="tests.test_contracts" name="test_dst_unique_utc_and_fold[2025-11-02]" time="0.148" /><testcase classname="tests.test_contracts" name="test_unavailable_values_mutate_append_delete_reorder_and_revision[retrospective]" time="1.030" /><testcase classname="tests.test_contracts" name="test_unavailable_values_mutate_append_delete_reorder_and_revision[prospective]" time="0.412" /><testcase classname="tests.test_contracts" name="test_prospective_revision_first_collected_after_cutoff_excluded" time="0.297" /><testcase classname="tests.test_contracts" name="test_lineage_can_represent_multiple_features_and_horizons" time="1.556" /><testcase classname="tests.test_contracts" name="test_fit_label_boundary_and_validation_whole_origin_purge" time="2.068" /><testcase classname="tests.test_contracts" name="test_paired_metrics_and_zero_denominator_selection" time="0.003" /><testcase classname="tests.test_contracts" name="test_replay_rollback_missing_and_corruption" time="8.130" /><testcase classname="tests.test_contracts" name="test_missing_seal_rejects_evaluation" time="0.008" /><testcase classname="tests.test_contracts" name="test_artifact_containment[../escape.json]" time="0.007" /><testcase classname="tests.test_contracts" name="test_artifact_containment[../../secret]" time="0.007" /><testcase classname="tests.test_contracts" name="test_artifact_containment[C:/absolute/secret]" time="0.007" /><testcase classname="tests.test_contracts" name="test_snapshot_tampering_and_arithmetic" time="0.006"><skipped type="pytest.skip" message="requires a completed snapshot generation">C:\Users\purav\OneDrive\Desktop\Data Projects\GridCast\tests\test_contracts.py:320: requires a completed snapshot generation</skipped></testcase><testcase classname="tests.test_contracts" name="test_app_renders_all_views_with_network_blocked" time="0.001"><skipped type="pytest.skip" message="requires completed real snapshot generation">C:\Users\purav\OneDrive\Desktop\Data Projects\GridCast\tests\test_contracts.py:343: requires completed real snapshot generation</skipped></testcase></testsuite></testsuites>

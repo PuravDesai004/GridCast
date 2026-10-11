@@ -1,0 +1,21 @@
+.venv/
+.snowflake-venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+.env
+.env.*
+!.env.example
+data/
+state/
+releases/bundles/
+releases/current.json
+demo/published/generations/*
+*.log
+*.sqlite*
+*.duckdb*
+reports/
+# Current reviewed demo generation
+!demo/published/generations/4d42f2f106ff4fd9bf0997b9b437fee1/
+!demo/published/generations/4d42f2f106ff4fd9bf0997b9b437fee1/**

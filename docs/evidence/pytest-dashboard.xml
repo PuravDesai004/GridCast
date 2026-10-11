@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="40" time="51.047" timestamp="2026-10-11T18:45:31.375141+05:30" hostname="Purav"><testcase classname="tests.test_contracts" name="test_config_rejects_invalid_before_work[parameters0]" time="0.001" /><testcase classname="tests.test_contracts" name="test_config_rejects_invalid_before_work[parameters1]" time="0.001" /><testcase classname="tests.test_contracts" name="test_config_rejects_invalid_before_work[parameters2]" time="0.001" /><testcase classname="tests.test_contracts" name="test_config_rejects_invalid_before_work[parameters3]" time="0.000" /><testcase classname="tests.test_contracts" name="test_config_rejects_invalid_before_work[parameters4]" time="0.000" /><testcase classname="tests.test_contracts" name="test_config_rejects_invalid_before_work[parameters5]" time="0.000" /><testcase classname="tests.test_contracts" name="test_config_rejects_invalid_before_work[parameters6]" time="0.000" /><testcase classname="tests.test_contracts" name="test_sanitizer_removes_nested_echo_and_secret_strings" time="0.000" /><testcase classname="tests.test_contracts" name="test_pagination_inclusive_bounds_and_sort" time="0.001" /><testcase classname="tests.test_contracts" name="test_contract_failures_discard_window[responses0]" time="0.001" /><testcase classname="tests.test_contracts" name="test_contract_failures_discard_window[responses1]" time="0.001" /><testcase classname="tests.test_contracts" name="test_contract_failures_discard_window[responses2]" time="0.001" /><testcase classname="tests.test_contracts" name="test_contract_failures_discard_window[responses3]" time="0.000" /><testcase classname="tests.test_contracts" name="test_contract_failures_discard_window[responses4]" time="0.001" /><testcase classname="tests.test_contracts" name="test_contract_failures_discard_window[responses5]" time="0.001" /><testcase classname="tests.test_contracts" name="test_timeout_retry_bounded_and_auth_prompt" time="0.000" /><testcase classname="tests.test_contracts" name="test_typed_demand_no_silent_filling[NaN-False-invalid]" time="0.001" /><testcase classname="tests.test_contracts" name="test_typed_demand_no_silent_filling[inf-False-invalid]" time="0.001" /><testcase classname="tests.test_contracts" name="test_typed_demand_no_silent_filling[-1-False-invalid]" time="0.001" /><testcase classname="tests.test_contracts" name="test_typed_demand_no_silent_filling[None-False-invalid]" time="0.001" /><testcase classname="tests.test_contracts" name="test_typed_demand_no_silent_filling[0-True-zero]" time="0.001" /><testcase classname="tests.test_contracts" name="test_typed_demand_no_silent_filling[999999-True-extreme_positive]" time="0.001" /><testcase classname="tests.test_contracts" name="test_unit_mismatch_rejected" time="0.000" /><testcase classname="tests.test_contracts" name="test_receipt_delivery_reversion_and_conflict" time="0.738" /><testcase classname="tests.test_contracts" name="test_gappy_lags_use_clock_timestamps_and_population_std" time="0.424" /><testcase classname="tests.test_contracts" name="test_dst_unique_utc_and_fold[2025-03-09]" time="0.412" /><testcase classname="tests.test_contracts" name="test_dst_unique_utc_and_fold[2025-11-02]" time="0.411" /><testcase classname="tests.test_contracts" name="test_unavailable_values_mutate_append_delete_reorder_and_revision[retrospective]" time="3.092" /><testcase classname="tests.test_contracts" name="test_unavailable_values_mutate_append_delete_reorder_and_revision[prospective]" time="0.830" /><testcase classname="tests.test_contracts" name="test_prospective_revision_first_collected_after_cutoff_excluded" time="0.851" /><testcase classname="tests.test_contracts" name="test_lineage_can_represent_multiple_features_and_horizons" time="2.125" /><testcase classname="tests.test_contracts" name="test_fit_label_boundary_and_validation_whole_origin_purge" time="1.970" /><testcase classname="tests.test_contracts" name="test_paired_metrics_and_zero_denominator_selection" time="0.002" /><testcase classname="tests.test_contracts" name="test_replay_rollback_missing_and_corruption" time="18.481" /><testcase classname="tests.test_contracts" name="test_missing_seal_rejects_evaluation" time="0.016" /><testcase classname="tests.test_contracts" name="test_artifact_containment[../escape.json]" time="0.019" /><testcase classname="tests.test_contracts" name="test_artifact_containment[../../secret]" time="0.019" /><testcase classname="tests.test_contracts" name="test_artifact_containment[C:/absolute/secret]" time="0.013" /><testcase classname="tests.test_contracts" name="test_snapshot_tampering_and_arithmetic" time="0.368" /><testcase classname="tests.test_contracts" name="test_app_renders_all_views_with_network_blocked" time="1.396"><failure message="AssertionError: network forbidden">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000017AA48D9220&gt;
+
+    def test_app_renders_all_views_with_network_blocked(monkeypatch):
+        if not (ROOT / "demo/published/current.json").exists():
+            pytest.skip("requires completed real snapshot generation")
+        from streamlit.testing.v1 import AppTest
+    
+        monkeypatch.delenv("EIA_API_KEY", raising=False)
+        monkeypatch.setattr(
+            socket.socket,
+            "connect",
+            lambda *a, **k: (_ for _ in ()).throw(AssertionError("network forbidden")),
+        )
+        monkeypatch.setattr(
+            joblib_load_module(),
+            "load",
+            lambda *a, **k: (_ for _ in ()).throw(AssertionError("model loading forbidden")),
+        )
+&gt;       app = AppTest.from_file(str(ROOT / "app/streamlit_app.py"), default_timeout=30).run()
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_contracts.py:357: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+.venv\Lib\site-packages\streamlit\testing\v1\app_test.py:616: in run
+    return self._tree.run(timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\streamlit\testing\v1\element_tree.py:2911: in run
+    result = self._runner._run(widget_states, timeout=timeout)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\streamlit\testing\v1\app_test.py:517: in _run
+    script_runner = LocalScriptRunner(
+.venv\Lib\site-packages\streamlit\testing\v1\local_script_runner.py:62: in __init__
+    self._owned_event_loop = asyncio.new_event_loop()
+                             ^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\asyncio\events.py:847: in new_event_loop
+    return _get_event_loop_policy().new_event_loop()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\asyncio\events.py:735: in new_event_loop
+    return self._loop_factory()
+           ^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\asyncio\windows_events.py:316: in __init__
+    super().__init__(proactor)
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\asyncio\proactor_events.py:635: in __init__
+    self._make_self_pipe()
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\asyncio\proactor_events.py:781: in _make_self_pipe
+    self._ssock, self._csock = socket.socketpair()
+                               ^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\socket.py:629: in _fallback_socketpair
+    csock.connect((addr, port))
+tests\test_contracts.py:350: in &lt;lambda&gt;
+    lambda *a, **k: (_ for _ in ()).throw(AssertionError("network forbidden")),
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+.0 = &lt;tuple_iterator object at 0x0000017AA5ACCF10&gt;
+
+&gt;       lambda *a, **k: (_ for _ in ()).throw(AssertionError("network forbidden")),
+    )
+E   AssertionError: network forbidden
+
+tests\test_contracts.py:350: AssertionError</failure></testcase></testsuite></testsuites>

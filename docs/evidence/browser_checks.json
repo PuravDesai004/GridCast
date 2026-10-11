@@ -1,0 +1,31 @@
+{
+  "checked_at": "2026-10-11T13:51:23.160Z",
+  "url": "http://127.0.0.1:8501",
+  "views": [
+    "Forecast Explorer",
+    "Evaluation",
+    "Reliability & Model Lineage"
+  ],
+  "horizon_filter": {
+    "scope": [
+      1,
+      12
+    ],
+    "expected_targets": 1104,
+    "baseline_targets": 1104,
+    "candidate_targets": 1104
+  },
+  "restored_scope": [
+    1,
+    24
+  ],
+  "restored_targets": 2208,
+  "historical_mode": true,
+  "release_id": "8a4cc72606d13028cbe716c4",
+  "snapshot_generation": "4d42f2f106ff4fd9bf0997b9b437fee1",
+  "screenshots": [
+    "forecast_explorer.jpg",
+    "evaluation.jpg",
+    "reliability_lineage.jpg"
+  ]
+}

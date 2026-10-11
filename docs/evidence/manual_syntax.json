@@ -1,0 +1,1 @@
+{"files":["snowflake\\02_load.py","snowflake\\03_features.py","snowflake\\04_compare.py","snowflake\\05_registry_inference.py","snowflake\\07_export_cleanup.py","snowflake\\keyed_candidate.py","snowflake\\user_session.py"],"method":"AST parse only, no imports/connections/warehouse SQL","status":"PASS","warehouse_status":"UNEXECUTED"}

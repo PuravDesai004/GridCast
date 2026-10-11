@@ -1,0 +1,15 @@
+requests
+pandas
+numpy
+pyarrow
+duckdb
+PyYAML
+pydantic
+tzdata
+scikit-learn
+mlflow
+joblib
+streamlit
+plotly
+pytest
+ruff

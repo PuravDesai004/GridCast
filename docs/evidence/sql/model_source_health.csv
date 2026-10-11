@@ -1,0 +1,2 @@
+serving_path,status,batches,mean_source_age_hours,forecast_targets,pending_actual_targets
+candidate,SUCCESS,7,3.0,168,0

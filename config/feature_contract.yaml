@@ -1,0 +1,10 @@
+version: clock_features_v1
+origin: daily_00_UTC
+targets: origin_plus_1_through_24_hours
+lags_clock_hours: [168, 336]
+windows: '(anchor - N hours, anchor], exact UTC clock grid'
+standard_deviation_ddof: 0
+calendar: target_in_America_New_York_with_offset_and_fold
+label_interface: separate_from_scoring
+availability: retrospective_interval_end_plus_delay_or_latest_successful_receipt_by_cutoff
+lineage_grain: origin_snapshot_horizon_feature_observation_version
