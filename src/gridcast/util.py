@@ -9,7 +9,7 @@ import re
 import sys
 import uuid
 from datetime import datetime, timezone
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 
 
 def now():
@@ -108,7 +108,11 @@ def environment_receipt():
 
 def contained(root, relative):
     root = Path(root).resolve()
-    path = (root / relative).resolve()
-    if Path(relative).is_absolute() or not path.is_relative_to(root):
+    # Manifests move between Windows and Linux; apply both platforms' path rules.
+    portable = PureWindowsPath(relative)
+    if Path(relative).is_absolute() or portable.drive or portable.root:
+        raise ValueError("artifact path escapes its generation")
+    path = root.joinpath(*portable.parts).resolve()
+    if not path.is_relative_to(root):
         raise ValueError("artifact path escapes its generation")
     return path

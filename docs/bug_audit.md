@@ -2,7 +2,8 @@
 
 Reviewed every Python module in `src/gridcast`, the Streamlit app, CLI/workflows,
 manual Snowflake scripts, SQL, local scripts, configuration, dependencies, and
-the GitHub Actions workflow. Fixes remain local and uncommitted.
+the GitHub Actions workflow. Except for the separately published portable-path
+containment fix and its focused tests, fixes remain local and uncommitted.
 
 ## Fixed behavior
 
@@ -54,8 +55,9 @@ one failed, and one skipped. This was verified subsequently from the preserved
 [hosted review](evidence/hosted_ci_review.json) and [JUnit artifact](evidence/pytest-hosted-first.xml).
 The [cleanup run](https://github.com/PuravDesai004/GridCast/actions/runs/38151159704)
 at `50e93f7` also failed overall. A passing hosted follow-up has not been verified.
-The portability correction remains a local uncommitted pipeline change; documentation
-publication does not publish these fixes or attribute historical accuracy to them.
+The portable-path containment correction and 13 focused tests are published separately
+from the documentation consolidation. Other pipeline fixes remain local; their
+historical model accuracy is not reattributed to changed source.
 The [cleanup verification receipt](evidence/cleanup_checks.json) independently records
 135 local passes and 43 passes/one private-state skip in an isolated published-source
 tree. Its timings and code scopes differ from this audit's original receipts.
