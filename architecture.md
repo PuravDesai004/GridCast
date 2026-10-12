@@ -358,7 +358,7 @@ For horizon h=1, target T is 2025-10-01 01:00 UTC. Its weekly lag time is T - 16
 
 The stored worked-row candidate prediction is 105,306.1479 MWh. That is model output from the learned ensemble, not a hand-derived fixed formula. The baseline value is 108,740 MWh. Actual demand is attached later. All 24 rows share anchor/window summaries but differ in target calendar, horizon, and target lags.
 
-Sources: docs/evidence/worked_origin.csv; data/test_predictions.parquet; features.py:build_features; independently checked feature row in state/architecture-review/verified_metrics.json.
+Sources: docs/evidence/worked_origin.csv; data/test_predictions.parquet; features.py:build_features; independently checked feature row in the archived local review; compact public verification is docs/evidence/resume_review.json.
 
 ### Metrics on a tiny test fixture [IMPLEMENTED; SYNTHETIC]
 
@@ -842,6 +842,6 @@ Paths are repository-relative. Function line numbers and links below are generat
 
 **Primary execution evidence:** docs/evidence/source_contract.json; source_validation.json; source_fetch_summary.json; features.json; membership_summary.json; selection.json; final_fit.json; selection_seal.json; first_test_evaluation.json; test_result.json; mlflow.json; daily_replay.json; recovery.json; trained_candidate_leakage.json; analysis.json; browser_checks.json; pytest-final.xml; checks.json. These receipt filenames resolve under docs/evidence.
 
-**New review evidence:** docs/evidence/resume_review.json; docs/evidence/hosted_ci_review.json; docs/evidence/pytest-hosted-first.xml. Detailed local queries: state/architecture-review/audit.py. These supplemental review receipts are published with this documentation consolidation; they were not part of the original model release.
+**New review evidence:** docs/evidence/resume_review.json; docs/evidence/hosted_ci_review.json; docs/evidence/pytest-hosted-first.xml. The original detailed queries and review results are archived under ../GridCast_local/review/architecture-review/; they are optional historical reference material, not runtime dependencies. These supplemental review receipts are published with this documentation consolidation; they were not part of the original model release.
 
 **Source-contract references preserved by the program:** EIA API documentation, https://www.eia.gov/opendata/documentation.php; EIA-930 instructions, https://www.eia.gov/survey/form/eia_930/instructions.pdf. Source metadata/probe evidence was inspected locally; this guide did not perform a new EIA request.

@@ -31,15 +31,15 @@ containment fix and its focused tests, fixes remain local and uncommitted.
 ## Verification
 
 - Final complete test suite: **135 passed, 0 failed, 0 skipped**, in 28.73 seconds.
-  Receipt: `state/bug-audit/pytest-release.xml`.
+  Receipt: `../GridCast_local/review/bug-audit/pytest-release.xml` (local historical reference).
 - Ruff passed for `src app tests scripts snowflake`; `git diff --check` passed.
 - `pip check`: no broken requirements; dependency pins were unchanged.
 - Fresh offline fixture build completed every stage in 81.48 seconds:
-  `state/bug-audit/final-fixture`. Its dashboard generation validated successfully.
+  the historical `state/bug-audit/final-fixture` workspace. Its compact receipts are archived locally; the completed fixture database was removed after verified backup.
 - All **18 recovery scenarios passed**, with no pending scenarios.
 - Daily replay inserted **zero new forecast rows**, kept database row counts
   unchanged, and preserved the model, selection seal, first evaluation, and test
-  result checksums. Receipt: `state/bug-audit/daily_validation.json`.
+  result checksums. Receipt: `../GridCast_local/review/bug-audit/daily_validation.json` (local historical reference).
 - Streamlit's test runner requires a local socket pair. The complete suite ran
   outside the desktop sandbox after the sandboxed run stalled in Windows socket
   creation; the dashboard test continues to block external network requests.

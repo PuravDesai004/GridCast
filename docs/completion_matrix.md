@@ -4,7 +4,7 @@ Status terms: **V** = implemented and verified by executed local checks; **U** =
 
 | Requirement | Implementation | Executed check / evidence | Status and limitations |
 |---|---|---|---|
-| Environment inspection, isolated packages, CPU bounds | requirements, pyproject, environment_receipt.py, config | Imports/pip check; `evidence/environment.json`; actual interpreter/OS/RAM/disk receipt | V — Windows3.14.7 local; Ubuntu Python3.14.8 synthetic workflow verified separately; older interpreters unverified |
+| Environment inspection, isolated packages, CPU bounds | requirements, pyproject, config; original environment receipt retained | Imports/pip check; `evidence/environment.json`; actual interpreter/OS/RAM/disk receipt | V — Windows3.14.7 local; Ubuntu Python3.14.8 synthetic workflow verified separately; older interpreters unverified |
 | EIA route/facets/unit/interval-end/UTC and calendar | source.py, source_contract.json | Official metadata, two-hour bounds probe, EIA-930 source references in `evidence/source_contract.json` | V — PJM/D/hourly/megawatthours; shift0h |
 | Monthly half-open extraction, padding, pagination, totals, retries/auth/facets/bounds/cache | source.py, storage.py | 26 real published windows; source receipt; source contract tests; 429/partial/conflict recovery | V — real2024–2025 plus336+48 valid padding hours |
 | Sanitized canonical artifacts; secret-free request logging | util.py, source.py | Redaction tests, hashes stored at publication; `evidence/secret_scan.json` | V — checksums identify sanitized persisted content |
@@ -29,7 +29,7 @@ Status terms: **V** = implemented and verified by executed local checks; **U** =
 | Three credential-free historical views/correct filters | app/, snapshots.py | Browserallviews/screenshots; network/modelblockedAppTest; 1–12filter1,104permodel | V — historical snapshot clearlylabeled |
 | Demo manifest containment/checksum/size/schema/key/horizon/unit/time/math | snapshots.py | `demo_validation.json`, tamper/arithmetic/naiveUTC/nonfiniteactualtests; generationvalidated | V — previousgenerationpreserved onfailure |
 | Every required recovery and release/source reversion | scenarios.py |18PASS,0pending `recovery.json`; expected/actual/count/hash/identity fields | V — explicitlysyntheticengineering evidence |
-| Clean isolated offline workflow | fixture config/splits, workflow | `clean_fixture.json`, freshrootstate/fixture-release-check, fullgraph151.84s | V — syntheticonly, separate real state |
+| Clean isolated offline workflow | fixture config/splits, workflow | `clean_fixture.json`, historical isolated workflow receipt; fullgraph151.84s; compact originals archived locally | V — syntheticonly, separate real state |
 | Dependency checks/Ruff/behavioralpytest | locks, tests, scripts | `pytest-final.xml`, `checks.json`, environmentpipcheck | V — exact localcounts in receipts |
 | Linux offline CI | .github/workflows/offline-checks.yml, portablemarkerlock | First Ubuntu run: dependencies, Ruff, fixture, recovery and demo passed; pytest42pass/1fail/1skip; hosted_ci_review.json | V — follow-up38210511471 atbf1b3dd passed all stages,56tests/1private-real-state skip; evidence/hosted_ci_followup.json; original failures preserved |
 | README/implementedarchitecture/modelcard/teaching | README, architecture.md, docs/*.md | Files inspected against realreceipts; workedrealorigin and definitions | V — useful proposal assumptions and worked viva examples consolidated into architecture.md |

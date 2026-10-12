@@ -33,3 +33,8 @@ reports/
 
 # Optional analyzer-generated narrative; maintained findings live in README.
 /docs/business_findings.md
+
+# Personal documentation tooling remains intact locally.
+/.agents/skills/project-viva-coach/
+# Promotion/rollback receipts belong with the local runtime release bundles.
+/releases/history/

@@ -1,56 +1,46 @@
-"""Read final evidence and execute bounded local integrity/lint/dependency gates."""
+"""Read-only public evidence/demo checks and optional local serving-bundle integrity."""
 
-import subprocess
-import sys
-import xml.etree.ElementTree as ET
+import argparse
+import json
+from pathlib import Path
+from types import SimpleNamespace
 
-from gridcast.config import ROOT, Workspace, load_settings
+from gridcast.releases import resolve_release
 from gridcast.snapshots import load_demo
-from gridcast.training import verify_seal
-from gridcast.util import now, write_json
+from gridcast.util import contained, file_hash, read_json
 
 
 def main():
-    outcomes = []
-    for arguments in [
-        ["-m", "ruff", "check", "src", "app", "tests", "scripts", "snowflake"],
-        ["-m", "pip", "check"],
-    ]:
-        result = subprocess.run(
-            [sys.executable, *arguments], cwd=ROOT, text=True, capture_output=True, check=False
-        )
-        outcomes.append(
-            {
-                "command": "python " + " ".join(arguments),
-                "exit_code": result.returncode,
-                "output": result.stdout.strip(),
-            }
-        )
-        if result.returncode:
-            raise RuntimeError("local lint/dependency gate failed")
-    suite = ET.parse(ROOT / "docs/evidence/pytest-final.xml").getroot().find("testsuite")
-    pytest = {key: suite.attrib[key] for key in ["tests", "failures", "errors", "skipped", "time"]}
-    if any(int(pytest[key]) for key in ["failures", "errors", "skipped"]):
-        raise ValueError("final local suite must have no failure/error/skip")
-    workspace = Workspace(ROOT, load_settings(ROOT / "config/project.yaml"))
-    seal = verify_seal(workspace)
-    demo = load_demo(ROOT / "demo")
-    write_json(
-        ROOT / "docs/evidence/checks.json",
-        {
-            "at": now(),
-            "status": "PASS",
-            "commands": outcomes,
-            "pytest": pytest,
-            "pytest_command": "python -m pytest -q --junitxml=docs/evidence/pytest-final.xml",
-            "seal_hash": seal["seal_hash"],
-            "demo_generation": demo["manifest"]["generation_id"],
-            "hosted_ci": "PENDING_NOT_EXECUTED",
-            "linux_dependency_install": "PENDING_NOT_EXECUTED",
-            "snowflake": "UNEXECUTED",
-        },
-    )
-    print("Release evidence checks: PASS", pytest)
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
+    parser.add_argument("--public-only", action="store_true", help="Do not require local models/state")
+    args = parser.parse_args()
+    root = args.root.resolve()
+    index = read_json(root / "docs/evidence/index.json")
+    for relative, record in index["files"].items():
+        path = contained(root, relative)
+        if path.stat().st_size != record["bytes"] or file_hash(path) != record["sha256"]:
+            raise ValueError(f"historical evidence integrity mismatch: {relative}")
+    demo = load_demo(root / "demo")
+    result = {
+        "status": "PASS",
+        "historical_index_files": len(index["files"]),
+        "demo_generation": demo["manifest"]["generation_id"],
+        "forecast_rows": len(demo["forecasts"]),
+        "metric_rows": len(demo["metrics"]),
+        "scope": "public evidence/demo" if args.public_only else "public evidence/demo + local bundle",
+        "read_only": True,
+    }
+    if not args.public_only:
+        # Avoid Workspace.path(), which creates directories even for missing inputs.
+        workspace = SimpleNamespace(root=root, path=lambda name: root / name)
+        manifest, _, corrupt = resolve_release(workspace)
+        if corrupt:
+            raise ValueError("local serving bundle integrity failure")
+        result["release_id"] = manifest["release_id"]
+        result["model_loaded"] = False
+        result["historical_code_scope"] = "artifact integrity; later code changes do not inherit accuracy"
+    print(json.dumps(result))
 
 
 if __name__ == "__main__":

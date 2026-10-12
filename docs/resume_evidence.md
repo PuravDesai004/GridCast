@@ -14,3 +14,5 @@ Describe local MLflow tracking/registered candidate and immutable local serving 
 Architecture companion: [implemented architecture and viva explanations](../architecture.md). The earlier PDF remains a dated local export.
 
 Later pipeline verification: [Ubuntu follow-up](https://github.com/PuravDesai004/GridCast/actions/runs/38210511471) at `bf1b3dd` passed all steps (56 tests/one private-real-state skip). This is separate from the historical model evidence. [Receipt](evidence/hosted_ci_followup.json).
+
+Optional detailed historical review queries are archived locally under `../GridCast_local/review/architecture-review/`; the public evidence above remains available without that archive.
