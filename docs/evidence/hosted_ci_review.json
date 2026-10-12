@@ -1,0 +1,32 @@
+{
+  "run_id": 38145773653,
+  "commit": "8b2137243801bada4aad48989080daa9cc5e4cdf",
+  "status": "completed",
+  "conclusion": "failure",
+  "url": "https://github.com/PuravDesai004/GridCast/actions/runs/38145773653",
+  "updated_at": "2026-10-11T14:09:16Z",
+  "artifacts": [
+    {
+      "id": 11704627153,
+      "name": "offline-evidence",
+      "size_bytes": 4315
+    }
+  ],
+  "pytest": {
+    "tests": 44.0,
+    "failures": 1.0,
+    "errors": 0.0,
+    "skipped": 1.0,
+    "time": 24.308,
+    "passed": 42
+  },
+  "failures": [
+    {
+      "name": "test_artifact_containment[C:/absolute/secret]",
+      "class": "tests.test_contracts",
+      "message": "Failed: DID NOT RAISE ValueError",
+      "details": "relative = 'C:/absolute/secret'\ntmp_path = PosixPath('/tmp/pytest-of-runner/pytest-0/test_artifact_containment_C__a0')\n\n    @pytest.mark.parametrize(\"relative\", [\"../escape.json\", \"../../secret\", \"C:/absolute/secret\"])\n    def test_artifact_containment(relative, tmp_path):\n>       with pytest.raises(ValueError):\n             ^^^^^^^^^^^^^^^^^^^^^^^^^\nE       Failed: DID NOT RAISE ValueError\n\ntests/test_contracts.py:342: Failed"
+    }
+  ],
+  "checked_at_utc": "2026-10-11T14:11:50.375010+00:00"
+}

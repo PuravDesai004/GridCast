@@ -1,24 +1,62 @@
-# GridCast
+# GridCast - Electricity Demand Forecasting & Analytics
 
-GridCast forecasts the next 24 UTC interval ends for PJM demand and preserves the evidence needed to explain every batch. It runs natively on Windows with DuckDB, scikit-learn, local MLflow, and a credential-free Streamlit dashboard.
+GridCast forecasts PJM demand for the next 24 hourly UTC interval ends and preserves the inputs, model identity, predictions, and later actuals needed to explain each batch. It demonstrates temporal data engineering, model lifecycle management, transactional scoring, and SQL analysis through a portable historical dashboard. Intended use is planning and error inspection; no dispatch or realized savings are claimed.
 
-The completed real-data release uses EIA hourly demand for 2024–2025, with separately counted lag/label padding. Historical retrievals were collected in October 2026: **HISTORICAL_SNAPSHOT** results assume interval-end + three-hour availability and do not reconstruct historical publication vintages.
+**Stack actually used:** Python, SQL, requests, pandas, NumPy, PyArrow/Parquet, DuckDB, scikit-learn, MLflow with SQLite/local artifacts, Joblib, Pydantic, PyYAML, Streamlit, Plotly, pytest, Ruff, Git, and GitHub Actions. Snowflake assets are prepared manual integration work, not an executed integration.
+
+## Architecture
+
+```mermaid
+flowchart LR
+  E[EIA pages] --> D[Validated versions and receipts in DuckDB]
+  D --> F[Cutoff-aware features]
+  F --> M[Chronological selection and sealed model]
+  M --> B[Versioned transactional forecasts]
+  B --> Q[Delayed actuals and SQL]
+  Q --> S[Validated snapshots]
+  S --> A[Historical Streamlit demo]
+```
+
+MLflow tracks experiments; an immutable release bundle and `releases/current.json` select serving. The dashboard reads snapshots, with no database, model, MLflow server, or credentials required. Its examples come from saved test predictions; operational database batches supply health evidence. See [the authoritative implemented architecture](architecture.md) for components, schemas, algorithms, worked examples, recovery boundaries, and interview answers.
+
+## Verified scale and forecasting results
+
+The source is EIA API v2 `electricity/rto/region-data`, respondent **PJM**, type **D**, hourly, in **megawatthours (MWh)**. Labels are UTC interval ends, normalized without an hour shift; calendar features use America/New_York.
+
+| Scope, half-open UTC period | Expected hours | Valid observations |
+| --- | ---: | ---: |
+| Core: 2024-01-01 to 2026-01-01 | 17,544 | 17,522 |
+| Warm-up: 2023-12-18 to 2024-01-01 | 336 | 336 |
+| Label padding: 2026-01-01 to 2026-01-03 | 48 | 48 |
+| Padded total | 17,928 | 17,906 |
+
+Core coverage is **17,522/17,544 = 99.8746%**. Twenty-six extraction windows delivered 17,928 versions and receipt links, including 22 invalid/missing hours. Repeated deliveries are not extra unique observations; no revised real identities were observed in this retrieved snapshot. See [source validation](docs/evidence/source_validation.json) and [extraction evidence](docs/evidence/source_fetch_summary.json).
+
+**Historical availability assumption:** data was collected in October 2026. Results simulate availability three hours after each interval end; historical publication vintages were not reconstructed.
 
 | Matched scope | Baseline WAPE | Candidate WAPE | Baseline MAE, MWh | Candidate MAE, MWh | Paired origins / scheduled | Targets |
-|---|---:|---:|---:|---:|---:|---:|
-| Validation, July–September 2025 | 9.7199% | 3.8259% | 10,047.56 | 3,954.88 | 89 / 92 | 2,136 |
-| Frozen test, October–December 2025 | 6.9579% | 3.6149% | 6,454.39 | 3,353.31 | 92 / 92 | 2,208 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Validation: Jul-Sep 2025 | 9.7199% | 3.8259% | 10,047.56 | 3,954.88 | 89 / 92 | 2,136 |
+| Frozen test: Oct-Dec 2025 | 6.9579% | 3.6149% | 6,454.39 | 3,353.31 | 92 / 92 | 2,208 |
 
-Validation selected the candidate under the predeclared coverage, WAPE, and peak-error gates. Test results did not alter selection. See [the evidence matrix](docs/completion_matrix.md), [implemented architecture and teaching](architecture.md), and [completion report](docs/completion_report.md).
+Four configurations across three expanding folds selected the candidate: **60.6384% relative validation WAPE reduction**, with the predeclared peak-error and coverage gates also satisfied. Three month-end validation origins were purged for label availability. Selection and the final fitted artifact were sealed before the first test evaluation. WAPE uses total absolute error divided by total absolute actual demand, not averaged fold percentages. Raw candidate results exclude fallback. Detailed splits, bias, peak metrics, denominators, model identities, and limitations are in the [model card](docs/model_card.md), [selection receipt](docs/evidence/selection.json), and [test receipt](docs/evidence/test_result.json).
 
-## Windows setup
+## Measured analytical findings
 
-Executed environment: Windows x64, PowerShell, Python **3.14.7**. The only installed interpreter was 3.14; isolated package installation, imports, and `pip check` passed. No global packages, Docker engine, WSL, or unrelated project environment was changed.
+All findings below concern **October-December 2025**, under the historical availability assumption, and are observations rather than business savings:
 
-From the project directory:
+- **Horizon 13** had the largest candidate test MAE: **4,607.81 MWh across 92 matched targets**. This identifies a part of the daily profile for review. [Horizon output](docs/evidence/sql/error_by_horizon_test_candidate.csv)
+- Candidate test WAPE was **3.6149% across 2,208 matched targets**, using **204,822,410 MWh** as the summed absolute-actual denominator. [Test metrics](docs/evidence/test_result.json)
+- Above the final training-derived **118,411.4 MWh** peak threshold, candidate peak MAE was **9,521.12 MWh across 67 targets**. Peak error materially exceeds average error. [Peak output](docs/evidence/sql/peak_demand_error_test_candidate.csv)
+
+Four parameterized SQL queries cover horizon error, peak error, seasonality, and source/model health. Ten scoped outputs were independently reconciled with NumPy. [Query/scope receipt](docs/evidence/analysis.json) and [SQL](sql/).
+
+## Setup and run
+
+Executed environment: **Windows x64, PowerShell, Python 3.14.7**, project-local `.venv`, two CPU threads. Exact versions are in [the environment receipt](docs/evidence/environment.json) and dependency locks. Python 3.12/3.13 are permitted by metadata but were not locally verified. Reuse the supplied environment when it already exists.
 
 ```powershell
-Set-Location 'C:\Users\purav\OneDrive\Desktop\Data Projects\GridCast'
+# From the GridCast directory, for a new environment only:
 python -m venv .venv
 New-Item -ItemType Directory -Force -Path state\tmp,state\matplotlib | Out-Null
 $env:TEMP = (Resolve-Path state\tmp).Path
@@ -29,99 +67,81 @@ $env:MPLCONFIGDIR = (Resolve-Path state\matplotlib).Path
 .\.venv\Scripts\python.exe -m pip check
 ```
 
-Skip `venv` creation and installation when continuing the supplied working environment. The lock pins the actual Windows resolution. `requirements/local.lock.txt` adds a Windows marker for pywin32 for Linux CI. The [first hosted Ubuntu run](https://github.com/PuravDesai004/GridCast/actions/runs/38145773653) completed dependency installation but failed one containment test; see [cleanup verification](docs/cleanup_report.md) for the checked scopes. Python 3.12/3.13 support is allowed by project metadata but this exact lock was resolved on 3.14 only. CPU fits use two threads, sequential folds, at most four configurations, 150 iterations, seed 42, and no early stopping.
-
-## Launch the packaged real dashboard
-
-No credentials, database, model, or MLflow server are needed:
+Launch the packaged demo without credentials:
 
 ```powershell
 Remove-Item Env:EIA_API_KEY -ErrorAction SilentlyContinue
 .\.venv\Scripts\python.exe -m streamlit run app\streamlit_app.py --server.address 127.0.0.1 --server.port 8501 --browser.gatherUsageStats false
 ```
 
-Open [the local preview](http://127.0.0.1:8501). Three actual captured views are in `assets/screenshots`. `demo/published/current.json` names one complete generation; each artifact is verified before rendering. See [demo walkthrough](docs/demo_walkthrough.md).
+Open [localhost:8501](http://127.0.0.1:8501). Use another explicit port if occupied. If desktop sandbox socket restrictions prevent launch, run the command in your own PowerShell.
 
-## Offline fixture and checks
-
-Use a **new** isolated root for a clean run; never overwrite real state with fixtures:
+A reproducible **synthetic** fixture uses a new isolated root; its accuracy is not a portfolio result:
 
 ```powershell
 .\.venv\Scripts\python.exe -m gridcast run --mode build --fixture --compact --offline --root state\my-clean-fixture --config config\fixture.yaml --splits config\fixture_splits.yaml
 .\.venv\Scripts\python.exe -m gridcast verify-scenarios --root state\my-clean-fixture --config config\fixture.yaml
 .\.venv\Scripts\python.exe -m gridcast validate-demo --root state\my-clean-fixture --config config\fixture.yaml
 .\.venv\Scripts\python.exe -m ruff check src app tests scripts snowflake
-.\.venv\Scripts\python.exe -m pytest -q --junitxml=state\pytest.xml
+.\.venv\Scripts\python.exe -m pytest -q
 ```
 
-Fixture metrics are synthetic engineering checks. They must never be used as portfolio accuracy claims. Tests needing a completed real seal may skip on a fresh CI checkout; fixture, contracts, and snapshot/app tests have their own coverage. The local final run records exact executed counts in `docs/evidence/pytest-final.xml`.
-
-## Real build and resume
-
-Register privately at [EIA Open Data](https://www.eia.gov/opendata/register.php), then set a key only in the launching PowerShell process:
+For real ingestion, [register an EIA key](https://www.eia.gov/opendata/register.php) and set it privately in the launching process. A fresh independent reproduction belongs in a **new root**; later EIA revisions may differ from the saved snapshot:
 
 ```powershell
-$env:EIA_API_KEY = [System.Net.NetworkCredential]::new('',(Read-Host 'Enter EIA key privately' -AsSecureString)).Password
-.\.venv\Scripts\python.exe -m gridcast inspect-source
-.\.venv\Scripts\python.exe -m gridcast run --mode build
+$env:EIA_API_KEY = [System.Net.NetworkCredential]::new('',(Read-Host 'EIA key' -AsSecureString)).Password
+.\.venv\Scripts\python.exe -m gridcast run --mode build --root state\my-real-reproduction --config config\project.yaml --splits config\splits.yaml
 ```
 
-The build executes source inspection/ingestion/validation, features, four-config backtesting, final fit and seal, frozen-test evaluation, release, seven example batches, outcomes, SQL, snapshot export and validation. Whole monthly windows are staged before publication. Stage receipts in `state/stages` preserve successes and failures. Re-running a sealed build verifies/reuses the selection and first test receipt rather than tuning again:
+For an existing workspace whose code/dependencies match its seal, `run --mode build --offline` verifies/reuses the saved source and selection. Daily scoring/replay uses `run --mode daily --offline --origin 2025-10-01T00:00:00Z`; it does not train. `export-demo` retries publication after database success; `rollback --release-id <EXISTING_VALIDATED_ID>` selects an existing bundle. `python -m gridcast --help` lists all commands; [run_local.ps1](scripts/run_local.ps1) is the PowerShell runner. Never delete a seal to bypass a mismatch. The existing holdout has been viewed, and local code fixes require their own provenance rather than inheriting historical performance.
 
-```powershell
-.\.venv\Scripts\python.exe -m gridcast run --mode build --offline
-.\scripts\run_local.ps1 -Mode build -Offline
-```
+Runtime paths: `data/db/gridcast.duckdb`, `state/mlflow.sqlite`, `state/mlflow_artifacts`, `state/candidate.joblib`, and `releases/current.json`. They remain local/ignored. The analyzer may regenerate ignored `docs/business_findings.md`; this README owns the maintained narrative and links its compact evidence.
 
-`--offline` requires previously validated real caches. For a fresh independent real reproduction, pass a new `--root`, `--config config/project.yaml`, and `--splits config/splits.yaml`; EIA revisions retrieved later may yield different results. Preserve the supplied seal and first-evaluation evidence. Do not delete them to bypass a fingerprint mismatch.
+## Dashboard walkthrough
 
-## Daily scoring, replay, recovery, rollback
+1. **Forecast Explorer:** choose 2025-10-01 00:00 UTC; inspect all 24 targets from 01:00 to the next midnight, candidate, weekly baseline, and actuals attached after scoring. Expand timestamp rows and read origin-specific errors.
+2. **Evaluation:** test scope has 2,208 matched targets per model. Set horizons to 1-12: paired counts become **1,104 per model**, and MAE/WAPE recompute from scoped sums. Restore 1-24; validation has 89/92 paired origins and 2,136 targets. Peak/coverage scopes stay explicitly labeled.
+3. **Reliability & Model Lineage:** distinguish source period, collection date, fit cutoff, model version, release, snapshot generation, and checksum. The 18 recovery cases are synthetic; health is historical, not a live outage alert.
 
-```powershell
-.\.venv\Scripts\python.exe -m gridcast forecast --origin 2025-10-01T00:00:00Z
-.\.venv\Scripts\python.exe -m gridcast forecast --origin 2025-10-01T00:00:00Z
-.\.venv\Scripts\python.exe -m gridcast run --mode daily --offline --origin 2025-10-01T00:00:00Z
-.\.venv\Scripts\python.exe -m gridcast verify-scenarios
-.\.venv\Scripts\python.exe -m gridcast export-demo
-.\.venv\Scripts\python.exe -m gridcast validate-demo
-.\.venv\Scripts\python.exe -m gridcast rollback --release-id 8a4cc72606d13028cbe716c4
-```
+The published demo contains **168 saved-test forecast examples and 96 metric rows** in six payload files totaling 110,706 bytes, excluding manifest/pointer and screenshots. [Snapshot receipt](docs/evidence/published_demo.json).
 
-Same logical identity verifies the output hash and inserts zero extra forecasts. Daily mode does not train or evaluate the holdout. Default config is retrospective; prospective collection must use an independently approved/configured collector and receipt history. No schedule is created. Rollback can only select an existing checksum-valid bundle; the current release ID above is also a safe pointer reconciliation example. Synthetic recovery creates its own fault-injection workspace.
+Genuine captures from the running app:
 
-## Inspect artifacts and troubleshoot
+![Forecast Explorer: historical PJM demand](assets/screenshots/forecast_explorer.jpg)
 
-`python -m gridcast --help` lists every stage and argument. The main database is `data/db/gridcast.duckdb`; registry metadata is `state/mlflow.sqlite`, artifacts `state/mlflow_artifacts`, model `state/candidate.joblib`, serving pointer `releases/current.json`. Runtime assets are ignored by Git; compact sanitized receipts and the current snapshot are public-ready.
+![Evaluation: matched historical metrics](assets/screenshots/evaluation.jpg)
 
-- Missing EIA key: set it privately in the process that performs ingestion; offline dashboard and fixtures still work.
-- Temporary-directory permission error: create and point TEMP/TMP to `state/tmp` as above. If the desktop sandbox denies loopback sockets, launch the same command in your own PowerShell; do not change firewall settings.
-- Source contract/authentication failure: inspect sanitized stage/source receipts, correct configuration/key, then retry the failed window. Do not promote partial pages.
-- Changed seal: restore the exact sealed configuration, code, dependencies, and artifacts. A new experiment belongs in another root. The original holdout has already been viewed.
-- Corrupt candidate: the scoring contract can use complete seasonal fallback without deserializing it. Missing fallback inputs yield UNAVAILABLE with zero numeric rows.
-- Snapshot failure after DB success: retry `export-demo`, then `validate-demo`; committed forecasts remain immutable.
-- Port 8501 busy: stop the existing preview or use another explicit local port.
+![Reliability and model lineage](assets/screenshots/reliability_lineage.jpg)
 
-Manual Snowflake work is completely **unexecuted**. Start with [the user-run guide](docs/snowflake_steps.md); local completion does not require it. No service has been deployed or background schedule installed.
+[Browser interaction receipt](docs/evidence/browser_checks.json). Streamlit AppTest renders every view and verifies the filter with EIA credentials removed, HTTP/external network blocked, and model loading forbidden; framework loopback IPC remains available.
 
-## Project viva skill
+## Reliability and validation
 
-The supplied [Project Viva Coach skill](.agents/skills/project-viva-coach/SKILL.md) is included with all six reference files and its inventory script. The eight files preserve the supplied archive's contents. Codex loads repository skills from `.agents/skills`; invoke `$project-viva-coach` to prepare an architecture walkthrough, demo, or technical viva from this project. Adding the skill does not run its script or generate a coaching guide.
+Local MLflow records **13 finished runs** (12 validation fits plus the final fit), two retained failed attempts, and registered candidate version 1. Serving validates the release checksum and resolves the authoritative pointer once per batch. [MLflow receipt](docs/evidence/mlflow.json).
 
-## GitHub and hosted CI
+Seven historical batches contain **168 forecasts**. Recorded replay added zero forecast, feature, lineage, or error rows; it added an execution attempt. A failed forecast transaction rolls back its writes, while export failure preserves the previous valid demo pointer. **18 isolated synthetic recovery scenarios passed**, including incomplete source windows, corrupt-model fallback, unavailable inputs, interrupted writes, rollback, and revised actuals. These finite checks do not prove universal exactly-once behavior or production safety. [Replay](docs/evidence/daily_replay.json), [recovery](docs/evidence/recovery.json), [leakage](docs/evidence/trained_candidate_leakage.json).
 
-Repository: [PuravDesai004/GridCast](https://github.com/PuravDesai004/GridCast).
+Original sealed-release local suite: **44 passed**. During cleanup, the current checkout including uncommitted fixes had **135 passed**; an isolated published-source tree had **43 passed, 1 skipped**, with the skip requiring private real-build state. Ruff, dependency, CLI, demo, and credential-free dashboard checks passed. [Original JUnit](docs/evidence/pytest-final.xml), [scoped cleanup checks](docs/evidence/cleanup_checks.json), and [local fix ledger](docs/bug_audit.md). Those 135 tests are not attributed to the published pipeline.
 
-The `.github/workflows/offline-checks.yml` workflow runs on Linux after pushes, with no keys or historical downloads. Inspect its actual run and evidence in [GitHub Actions](https://github.com/PuravDesai004/GridCast/actions/workflows/offline-checks.yml), or with the optional GitHub CLI:
+Hosted CI is **not passing**: the [first inspected Ubuntu run](https://github.com/PuravDesai004/GridCast/actions/runs/38145773653) failed Windows-drive path containment; the [cleanup run at 50e93f7](https://github.com/PuravDesai004/GridCast/actions/runs/38151159704) also failed overall. The portability fix remains a separate local change. Inspect actual [Actions runs](https://github.com/PuravDesai004/GridCast/actions/workflows/offline-checks.yml) before claiming a passing follow-up. No keys or historical downloads are required by the workflow.
 
-```powershell
-gh run list --workflow offline-checks.yml
-gh run view <ACTUAL_RUN_ID> --log-failed
-```
+## Limitations and pending work
 
-The original completion report predates publication. The [first hosted Ubuntu run](https://github.com/PuravDesai004/GridCast/actions/runs/38145773653) failed a Windows-drive containment test and skipped its private real-seal test. The cleanup preserves that published prediction code; separate local fixes remain uncommitted. See [the cleanup report](docs/cleanup_report.md) for scoped checks and inspect the actual post-push run before claiming hosted success.
+- Retrospective 2026 retrieval with simulated three-hour availability is not prospective accuracy or reconstructed provider publication history.
+- One authority, a limited period, missing hours, correlated horizons, peak error, no weather features, and no uncertainty intervals limit generalization.
+- Local files/databases and finite fault tests do not establish distributed concurrency, production SLAs, access control, or dispatch safety. Checksums establish consistency; trusted Joblib/cloudpickle artifacts must not be replaced with arbitrary models.
+- No service deployment or background schedule exists. Real prospective collection, broader validation, and a verified passing hosted workflow remain pending.
+- **Snowflake is unexecuted.** [The manual guide](docs/snowflake_steps.md) and [scripts](snowflake/) prepare setup, load, feature/prediction parity, registry inference, outcomes, exports, and cleanup. Account compatibility, execution, parity, and costs require user-run evidence. They are not resume accomplishments.
 
-## Repository hygiene
+## Documentation and evidence
 
-The [cleanup report](docs/cleanup_report.md) records removed scratch workspaces, recovery backups, verification, and retained evidence. The reviewed demo generation, genuine screenshots, focused tests, source ingestion path, dependency locks, SQL, manual Snowflake scripts, and historical release receipts remain available. Local data, MLflow artifacts, and serving bundles remain outside Git. Verification writes temporary state under `state/cleanup-review`; cache and build ignore rules leave the public demo and evidence visible.
+- [architecture.md](architecture.md): the single implemented architecture, worked examples, trade-offs, and viva answers; historical source is distinguished from local fixes.
+- [Model card](docs/model_card.md): source/feature/split/evaluation/fallback contract and immutable model identities.
+- [Requirement-to-evidence matrix](docs/completion_matrix.md): implementation mapping and verification boundaries.
+- [Resume evidence](docs/resume_evidence.md): defensible numerical claims and interview explanations.
+- [Bug audit](docs/bug_audit.md): unique uncommitted fixes and unresolved publication/CI boundaries.
+- [Evidence index](docs/evidence/index.json): original receipt checksums; additional review receipts remain separately identified in [docs/evidence](docs/evidence/). Original receipts and immutable release/demo cards are unchanged.
 
-The cleanup commit preserves the existing published pipeline. Separate uncommitted bug fixes and architecture/resume work remain in the local checkout; checks run against that checkout are identified separately from checks of the committed repository.
+The supplied [Project Viva Coach skill](.agents/skills/project-viva-coach/SKILL.md) remains available as a documentation aid, outside the forecasting runtime. Its former separate Markdown guide is consolidated into `architecture.md`; the earlier PDF remains a dated local export.
+
+Earlier cleanup provenance remains in [its receipt](docs/evidence/cleanup_checks.json) and [commit 50e93f7](https://github.com/PuravDesai004/GridCast/commit/50e93f7f896804701de009471fa9cb12a0f0639d). Original documents are recoverable from Git and verified outside-repository backups. The local cleanup backup is `../GridCast-cleanup-backup-20261011T151106Z/recoverable-files.zip`; extract selected files to an isolated directory before restoring them.

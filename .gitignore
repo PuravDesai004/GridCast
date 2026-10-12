@@ -30,3 +30,6 @@ reports/
 # Current reviewed demo generation
 !demo/published/generations/4d42f2f106ff4fd9bf0997b9b437fee1/
 !demo/published/generations/4d42f2f106ff4fd9bf0997b9b437fee1/**
+
+# Optional analyzer-generated narrative; maintained findings live in README.
+/docs/business_findings.md
