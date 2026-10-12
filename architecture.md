@@ -559,7 +559,7 @@ Sources: docs/evidence/recovery.json; scenarios.py:verify_scenarios; forecasting
 
 The [README reliability summary](README.md#reliability-and-validation) links the original 44-test Windows release, later 135-test local checkout, isolated published-source checks, recovery, replay, leakage, and browser receipts. These are different source/state scopes. [The requirement matrix](docs/completion_matrix.md) maps each contract to evidence.
 
-The first hosted Ubuntu run at `8b21372` had 42 passes, one failure, and one skip. `test_artifact_containment[C:/absolute/secret]` did not raise: native POSIX `Path` does not recognize Windows-drive syntax as absolute. This is an input-validation defect, not evidence of an actual secret read. The real-seal check skipped because the CI checkout lacks the private completed real build. See [the preserved hosted review](docs/evidence/hosted_ci_review.json) and [JUnit artifact](docs/evidence/pytest-hosted-first.xml). The cleanup run at `50e93f7` also failed overall. A separate portable-path containment fix and 13 focused regression cases address this defect. The historical failed runs remain failed; confirm any hosted follow-up against its own commit and run receipt.
+The first hosted Ubuntu run at `8b21372` had 42 passes, one failure, and one skip. `test_artifact_containment[C:/absolute/secret]` did not raise: native POSIX `Path` does not recognize Windows-drive syntax as absolute. This is an input-validation defect, not evidence of an actual secret read. The real-seal check skipped because the CI checkout lacks the private completed real build. See [the preserved hosted review](docs/evidence/hosted_ci_review.json) and [JUnit artifact](docs/evidence/pytest-hosted-first.xml). The cleanup run at `50e93f7` also failed overall. A separate portable-path containment fix and 13 focused regression cases address this defect. The historical failed runs remain failed. [Follow-up Ubuntu run](https://github.com/PuravDesai004/GridCast/actions/runs/38210511471) at `bf1b3dd` passed all stages and reported 56 tests passed/one private-real-state skip; see [its separate receipt](docs/evidence/hosted_ci_followup.json). This does not reevaluate or replace the sealed historical model.
 
 Original evidence indexes, checksums, embedded release/demo model cards, seals, and first-evaluation receipts remain historical and unchanged. Supplemental review receipts add interpretation without rewriting those records.
 
@@ -726,7 +726,7 @@ The proposal also suggested validation-only availability sensitivity at 2/3/6 ho
 
 ### Future: What would you improve next? [PLANNED / INFERRED]
 
-**Short answer:** Collect a prospective period separately, address portability checks, and evaluate weather or uncertainty additions on new data.
+**Short answer:** Collect a prospective period separately, retain cross-platform regression checks, and evaluate weather or uncertainty additions on new data.
 
 **Deep answer:** Define collection receipts, revised-actual policy, new feature/release identity, and evaluation scope first. Keep the old viewed holdout intact. Deployment would additionally need access control, concurrency, monitoring, and cost evidence; Snowflake parity remains a manual unexecuted pilot.
 

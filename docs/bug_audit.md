@@ -54,7 +54,7 @@ at `8b21372` failed `test_artifact_containment[C:/absolute/secret]`: 42 passed,
 one failed, and one skipped. This was verified subsequently from the preserved
 [hosted review](evidence/hosted_ci_review.json) and [JUnit artifact](evidence/pytest-hosted-first.xml).
 The [cleanup run](https://github.com/PuravDesai004/GridCast/actions/runs/38151159704)
-at `50e93f7` also failed overall. A passing hosted follow-up has not been verified.
+at `50e93f7` also failed overall. The [follow-up Ubuntu run](https://github.com/PuravDesai004/GridCast/actions/runs/38210511471) at `bf1b3dd` passed all workflow steps: 56 tests passed and one private-real-state skip. See [the follow-up receipt](evidence/hosted_ci_followup.json).
 The portable-path containment correction and 13 focused tests are published separately
 from the documentation consolidation. Other pipeline fixes remain local; their
 historical model accuracy is not reattributed to changed source.
